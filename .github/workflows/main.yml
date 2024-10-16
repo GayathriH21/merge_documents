@@ -32,7 +32,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '20'  # Set Node.js version explicitly
+        node-version: '18'  # Set Node.js version to 18
 
     - name: Setup Python ${{ env.PYTHON_VERSION }}
       uses: actions/setup-python@v4
