@@ -40,6 +40,9 @@ jobs:
       with:
         flutter-version: ${{ env.FLUTTER_VERSION }}
 
+    - name: Verify Flutter Installation
+      run: flutter doctor  # Check if Flutter installed successfully and diagnose issues
+
     - name: Flet Build Windows
       run: |
         flutter config --no-analytics
