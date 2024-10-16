@@ -29,6 +29,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'  # Set Node.js version explicitly
+
     - name: Setup Python ${{ env.PYTHON_VERSION }}
       uses: actions/setup-python@v4
       with:
@@ -40,7 +45,7 @@ jobs:
         pip install -r requirements.txt
   
     - name: Setup Flutter
-      uses: subosito/flutter-action@v2  # Updated to use version 2
+      uses: subosito/flutter-action@v2
       with:
         flutter-version: ${{ env.FLUTTER_VERSION }}
 
