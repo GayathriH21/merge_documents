@@ -29,13 +29,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4  # Update to the latest version
+    - name: Setup Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v3
       with:
-        node-version: '18'  # You can keep this if you need version 18
+        node-version: '20'
 
     - name: Setup Python ${{ env.PYTHON_VERSION }}
-      uses: actions/setup-python@v4  # Ensure this is the latest version
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ env.PYTHON_VERSION }}
 
@@ -44,8 +44,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
   
-    - name: Setup Flutter
-      uses: subosito/flutter-action@v2  # Ensure this is the latest version
+    - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
+      uses: subosito/flutter-action@v2
       with:
         flutter-version: ${{ env.FLUTTER_VERSION }}
 
@@ -56,13 +56,14 @@ jobs:
             flet build web --base-url ${GITHUB_REPOSITORY#*/} --route-url-strategy hash
 
     - name: Upload Artifact
-      uses: actions/upload-pages-artifact@v3  # Ensure this is the latest version
+      uses: actions/upload-pages-artifact@v3
       with:
         name: web-build-artifact  
         path: build/web
 
   deploy:
-    needs: build
+    needs: build 
+
     runs-on: ubuntu-latest
 
     permissions:
@@ -80,6 +81,6 @@ jobs:
       - name: Deploy to GitHub Pages 🚀
         if: github.event_name == 'push'  
         id: deployment
-        uses: actions/deploy-pages@v4.0.5  # Ensure this is the latest version
+        uses: actions/deploy-pages@v4.0.5
         with:
           artifact_name: web-build-artifact
