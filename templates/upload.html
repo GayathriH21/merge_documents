@@ -32,6 +32,7 @@
             padding: 10px;
             border-radius: 5px;
             border: 1px solid #ccc;
+            width: 80%;
         }
         .add-button, .submit-button {
             padding: 10px 15px;
@@ -70,7 +71,10 @@
     <h1>Upload Documents to Merge</h1>
     <form method="POST" enctype="multipart/form-data">
         <div id="file-upload-container" class="file-upload">
-            <input type="file" name="files" required>
+            <div class="file-input-container">
+                <input type="file" name="files" required>
+                <button type="button" class="cancel-button" onclick="removeFileInput(this)">Cancel</button>
+            </div>
         </div>
         <button type="button" class="add-button" onclick="addFileInput()">+ Add Another Document</button>
         <button type="submit" class="submit-button">Merge Documents</button>
@@ -104,6 +108,11 @@
             // Append the new input container to the file upload container
             const fileUploadContainer = document.getElementById("file-upload-container");
             fileUploadContainer.appendChild(inputContainer);
+        }
+
+        function removeFileInput(button) {
+            // Remove the file input container associated with the cancel button
+            button.parentElement.remove();
         }
     </script>
 </body>
