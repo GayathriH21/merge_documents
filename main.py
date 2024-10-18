@@ -4,7 +4,7 @@ from docx import Document
 from docx.shared import Inches
 import os
 import docx
-
+from waitress import serve
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'docx'}
@@ -170,4 +170,4 @@ def merge_similar_tables(tables):
     return combined_tables
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    serve(app, host='0.0.0.0', port=50100, threads=2)
