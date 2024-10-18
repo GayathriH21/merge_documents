@@ -18,7 +18,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.9' # or any version you prefer
+        python-version: '3.12' # Use your preferred Python version
 
     - name: Install dependencies
       run: |
@@ -28,4 +28,4 @@ jobs:
     - name: Run Flask App with Waitress
       run: |
         echo Starting the Flask server with Waitress...
-        python -m waitress --port=8000 main:app
+        waitress-serve --port=5000 main:app
