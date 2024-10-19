@@ -1,10 +1,9 @@
-from flask import Flask, request, render_template, send_file 
+from flask import Flask, request, render_template, send_file
 from werkzeug.utils import secure_filename
 from docx import Document
 from docx.shared import Inches
 import os
 import docx
-from waitress import serve
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
@@ -79,31 +78,31 @@ def merge_documents(files):
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
-        try:
-            files = request.files.getlist('files')
-            if files and all(allowed_file(f.filename) for f in files):
-                file_paths = []
-                for f in files:
-                    filename = secure_filename(f.filename)
-                    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                    f.save(file_path)
-                    file_paths.append(file_path)
+        files = request.files.getlist('files')
+        if files and all(allowed_file(f.filename) for f in files):
+            file_paths = []
+            for f in files:
+                filename = secure_filename(f.filename)
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                f.save(file_path)
+                file_paths.append(file_path)
 
-                merged_file_path = merge_documents(file_paths)
-                return send_file(merged_file_path, as_attachment=True)
-            else:
-                return "Invalid file type. Only .docx files are allowed.", 400
-
-        except Exception as e:
-            return f"An error occurred: {str(e)}", 500  # Return error message on exception
+            merged_file_path = merge_documents(file_paths)
+            return send_file(merged_file_path, as_attachment=True)
     
     return render_template('upload.html')
 
 def is_heading(para):
-    return para.style.name.startswith('Heading')
+    if para.style.name.startswith('Heading'):
+        return True
+    return False
 
 def is_subheading(para):
-    return para.style.name.startswith('Heading') and not para.style.name.startswith('Heading 1')
+    if para.style.name.startswith('Heading') and not para.style.name.startswith('Heading 1'):
+        return True
+    if para.runs and (para.runs[0].bold or para.runs[0].italic or para.runs[0].underline):
+        return True
+    return False
 
 def copy_paragraph_and_images(source_para, target_doc):
     target_para = target_doc.add_paragraph()
@@ -128,11 +127,11 @@ def set_cell_borders(cell):
     tc = cell._element
     tcPr = tc.get_or_add_tcPr()
     tcBorders = docx.oxml.parse_xml(r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
-                                      r'<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                                      r'<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                                      r'<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                                      r'<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                                      r'</w:tcBorders>')
+                                    r'<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                                    r'<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                                    r'<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                                    r'<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                                    r'</w:tcBorders>')
     tcPr.append(tcBorders)
 
 def copy_table(source_table, target_doc):
@@ -153,13 +152,12 @@ def merge_similar_tables(tables):
         header_text = tuple(get_header_text(table))  # Make header hashable
         if header_text not in header_groups:
             header_groups[header_text] = Document().add_table(rows=0, cols=len(table.columns))
-            # Add header row only once with bold formatting
+            # Add header row only once
             header_row = header_groups[header_text].add_row().cells
             for idx, cell in enumerate(table.rows[0].cells):
-                # Create a new paragraph for the header cell and apply bold formatting
-                header_paragraph = header_row[idx].add_paragraph()  # Create a new paragraph for the header
-                header_run = header_paragraph.add_run(cell.text)  # Add run to the new paragraph
-                header_run.bold = True  # Apply bold formatting to header text
+                header_row[idx].text = cell.text
+                for run in header_row[idx].paragraphs[0].runs:
+                    run.bold = True
         
         # Add non-header rows from each table with matching headers
         for row in table.rows[1:]:  # Skip header row for merging
@@ -171,5 +169,4 @@ def merge_similar_tables(tables):
     return combined_tables
 
 if __name__ == '__main__':
-    # Use serve(app, host='0.0.0.0', port=50100, threads=2) for production
-    app.run(debug=True)  # Set debug=True for development
+    app.run(debug=True)
