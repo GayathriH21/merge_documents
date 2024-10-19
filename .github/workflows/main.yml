@@ -27,5 +27,10 @@ jobs:
 
     - name: Run Flask App with Waitress
       run: |
-        echo Starting the Flask server with Waitress...
-        waitress-serve --port=5000 main:app
+        echo Starting the Flask server with Waitress on port 50100...
+        waitress-serve --port=50100 main:app
+
+    - name: Test Flask App
+      run: |
+        echo Testing if Flask app is running...
+        curl http://localhost:50100
