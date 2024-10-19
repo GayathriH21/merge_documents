@@ -5,6 +5,7 @@ from docx.shared import Inches
 import os
 import docx
 from waitress import serve
+
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'docx'}
@@ -78,31 +79,31 @@ def merge_documents(files):
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
-        files = request.files.getlist('files')
-        if files and all(allowed_file(f.filename) for f in files):
-            file_paths = []
-            for f in files:
-                filename = secure_filename(f.filename)
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                f.save(file_path)
-                file_paths.append(file_path)
+        try:
+            files = request.files.getlist('files')
+            if files and all(allowed_file(f.filename) for f in files):
+                file_paths = []
+                for f in files:
+                    filename = secure_filename(f.filename)
+                    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                    f.save(file_path)
+                    file_paths.append(file_path)
 
-            merged_file_path = merge_documents(file_paths)
-            return send_file(merged_file_path, as_attachment=True)
+                merged_file_path = merge_documents(file_paths)
+                return send_file(merged_file_path, as_attachment=True)
+            else:
+                return "Invalid file type. Only .docx files are allowed.", 400
+
+        except Exception as e:
+            return f"An error occurred: {str(e)}", 500  # Return error message on exception
     
     return render_template('upload.html')
 
 def is_heading(para):
-    if para.style.name.startswith('Heading'):
-        return True
-    return False
+    return para.style.name.startswith('Heading')
 
 def is_subheading(para):
-    if para.style.name.startswith('Heading') and not para.style.name.startswith('Heading 1'):
-        return True
-    if para.runs and (para.runs[0].bold or para.runs[0].italic or para.runs[0].underline):
-        return True
-    return False
+    return para.style.name.startswith('Heading') and not para.style.name.startswith('Heading 1')
 
 def copy_paragraph_and_images(source_para, target_doc):
     target_para = target_doc.add_paragraph()
@@ -127,11 +128,11 @@ def set_cell_borders(cell):
     tc = cell._element
     tcPr = tc.get_or_add_tcPr()
     tcBorders = docx.oxml.parse_xml(r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
-                                    r'<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                                    r'<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                                    r'<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                                    r'<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
-                                    r'</w:tcBorders>')
+                                      r'<w:top w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                                      r'<w:left w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                                      r'<w:bottom w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                                      r'<w:right w:val="single" w:sz="4" w:space="0" w:color="000000"/>'
+                                      r'</w:tcBorders>')
     tcPr.append(tcBorders)
 
 def copy_table(source_table, target_doc):
@@ -170,4 +171,5 @@ def merge_similar_tables(tables):
     return combined_tables
 
 if __name__ == '__main__':
-    serve(app, host='0.0.0.0', port=50100, threads=2)
+    # Use serve(app, host='0.0.0.0', port=50100, threads=2) for production
+    app.run(debug=True)  # Set debug=True for development
