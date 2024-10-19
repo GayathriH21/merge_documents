@@ -42,38 +42,80 @@
             border-radius: 5px;
             cursor: pointer;
             margin-top: 10px;
+            display: block;
+            width: 100%;
+            text-align: center;
+        }
+        .add-button {
+            background-color: #28a745;
         }
         .add-button:hover, .submit-button:hover {
             background-color: #0056b3;
         }
+        .add-button:hover {
+            background-color: #218838;
+        }
+        .cancel-button {
+            padding: 5px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 5px;
+            margin-left: 10px;
+        }
     </style>
+</head>
+<body>
+    <h1>Upload Documents to Merge</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <div id="file-upload-container" class="file-upload">
+            <div class="file-input-container">
+                <input type="file" name="files" required>
+                <button type="button" class="cancel-button" onclick="removeFileInput(this)">Cancel</button>
+            </div>
+        </div>
+        <button type="button" class="add-button" onclick="addFileInput()">+ Add Another Document</button>
+        <button type="submit" class="submit-button">Merge Documents</button>
+    </form>
+
     <script>
         function addFileInput() {
-            const fileUploadContainer = document.getElementById('file-upload-container');
-            const newInput = document.createElement('div');
-            newInput.className = 'file-upload';
-            newInput.innerHTML = `
-                <input type="file" name="files" accept=".docx" required>
-                <button type="button" onclick="removeFileInput(this)">Remove</button>
-            `;
-            fileUploadContainer.appendChild(newInput);
+            // Create a new file input element
+            const inputContainer = document.createElement("div");
+            inputContainer.className = "file-input-container"; // Create a container for input and button
+
+            const input = document.createElement("input");
+            input.type = "file";
+            input.name = "files";
+            input.required = true;
+
+            // Create a cancel button
+            const cancelButton = document.createElement("button");
+            cancelButton.type = "button";
+            cancelButton.className = "cancel-button";
+            cancelButton.textContent = "Cancel";
+            cancelButton.onclick = function() {
+                // Remove the file input container
+                inputContainer.remove();
+            };
+
+            // Append the new input element and cancel button to the input container
+            inputContainer.appendChild(input);
+            inputContainer.appendChild(cancelButton);
+
+            // Append the new input container to the file upload container
+            const fileUploadContainer = document.getElementById("file-upload-container");
+            fileUploadContainer.appendChild(inputContainer);
         }
 
         function removeFileInput(button) {
+            // Remove the file input container associated with the cancel button
             button.parentElement.remove();
         }
     </script>
-</head>
-<body>
-    <h1>Merge Word Documents</h1>
-    <form method="POST" enctype="multipart/form-data">
-        <div id="file-upload-container">
-            <div class="file-upload">
-                <input type="file" name="files" accept=".docx" required>
-            </div>
-        </div>
-        <button type="button" class="add-button" onclick="addFileInput()">Add Another File</button>
-        <button type="submit" class="submit-button">Merge Documents</button>
-    </form>
 </body>
+
+now update in this
 </html>
