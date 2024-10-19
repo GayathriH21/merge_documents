@@ -42,3 +42,38 @@
             border-radius: 5px;
             cursor: pointer;
             margin-top: 10px;
+        }
+        .add-button:hover, .submit-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <script>
+        function addFileInput() {
+            const fileUploadContainer = document.getElementById('file-upload-container');
+            const newInput = document.createElement('div');
+            newInput.className = 'file-upload';
+            newInput.innerHTML = `
+                <input type="file" name="files" accept=".docx" required>
+                <button type="button" onclick="removeFileInput(this)">Remove</button>
+            `;
+            fileUploadContainer.appendChild(newInput);
+        }
+
+        function removeFileInput(button) {
+            button.parentElement.remove();
+        }
+    </script>
+</head>
+<body>
+    <h1>Merge Word Documents</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <div id="file-upload-container">
+            <div class="file-upload">
+                <input type="file" name="files" accept=".docx" required>
+            </div>
+        </div>
+        <button type="button" class="add-button" onclick="addFileInput()">Add Another File</button>
+        <button type="submit" class="submit-button">Merge Documents</button>
+    </form>
+</body>
+</html>
